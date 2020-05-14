@@ -19,10 +19,10 @@ class Post(models.Model):
     text = models.TextField(verbose_name='Текст')
     pub_date = models.DateTimeField("date published", auto_now_add=True)
     author = models.ForeignKey(User, verbose_name='Автор',
-                               related_name='author_posts',
+                               related_name='posts',
                                on_delete=models.CASCADE)
     group = models.ForeignKey(Group, verbose_name='Сообщество',
-                              related_name='group_posts', blank=True,
+                              related_name='posts', blank=True,
                               null=True,
                               on_delete=models.SET_NULL)
 

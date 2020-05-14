@@ -6,11 +6,18 @@ SECRET_KEY = 'piz8b@0&nx8@#l%8dii2z$*jgl0oro=)jvonaj7j9py8u3#+wa'
 
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+        "localhost",
+        "127.0.0.1",
+        "[::1]",
+        "testserver",
+]
 
 INSTALLED_APPS = [
     'users',
     'posts',
+    "django.contrib.sites",
+    "django.contrib.flatpages",
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -106,3 +113,4 @@ MANAGERS = [
 
 EMAIL_BACKEND = "django.core.mail.backends.filebased.EmailBackend"
 EMAIL_FILE_PATH = os.path.join(BASE_DIR, "sent_emails")
+SITE_ID = 1
