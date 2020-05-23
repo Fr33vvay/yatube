@@ -43,24 +43,24 @@ def new_post(request):
 
 
 def profile(request, username):
-    member = get_object_or_404(User, username=username)
-    post_list = Post.objects.filter(author=member).order_by('-pub_date')
+    author = get_object_or_404(User, username=username)
+    post_list = author.posts.order_by('-pub_date')
     post_count = len(post_list)
     paginator = Paginator(post_list, 10)
     page_number = request.GET.get('page')
     page = paginator.get_page(page_number)  # TODO: paginator's style
-    return render(request, 'profile.html', {'member': member,
+    return render(request, 'profile.html', {'author': author,
                                             'post_count': post_count,
                                             'page': page,
                                             'paginator': paginator})
 
 
 def post_view(request, username, post_id):
-    member = get_object_or_404(User, username=username)
-    post = get_object_or_404(member.posts, id=post_id)
-    post_list = Post.objects.filter(author=member)
+    author = get_object_or_404(User, username=username)
+    post = get_object_or_404(author.posts, id=post_id)
+    post_list = author.posts.order_by('-pub_date')
     post_count = len(post_list)
-    return render(request, 'post.html', {'member': member,
+    return render(request, 'post.html', {'author': author,
                                          'post': post,
                                          'post_count': post_count})
 
