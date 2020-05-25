@@ -8,7 +8,7 @@ class PostForm(ModelForm):
         model = Post
         fields = ('group', 'text', )
         help_texts = {
-            'text': 'Интернет помнит всё',
+            'text': 'Введите сообщение',
             'group': 'Выберите сообщество для публикации. '
                      'Если, конечно, хотите.'
         }

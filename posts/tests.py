@@ -1,18 +1,17 @@
 from django.test import TestCase
 from django.urls import reverse
 
-from .models import Post, User
+from .models import User
 
 
-class TestHomeWork05(TestCase):
+class TestHomeWork04(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(username='bum', password='12345')
         self.client.force_login(self.user)
         self.post_text = 'New text'
         self.edited_post_text = 'Edited text'
         self.new_post = self.client.post(reverse('new_post'),
-                         {'text': self.post_text}, follow=True)
-
+                                         {'text': self.post_text}, follow=True)
 
     def test_create_profile_after_reg(self):
         response = self.client.get(reverse('profile', kwargs={
@@ -34,7 +33,6 @@ class TestHomeWork05(TestCase):
                              status_code=302, target_status_code=200)
 
     def test_new_post_everywhere(self):
-        self.new_post
         resp_index = self.client.get(reverse('index'))
         self.assertContains(resp_index, self.post_text,
                             msg_prefix='Поста нет на главной странице')
@@ -53,7 +51,6 @@ class TestHomeWork05(TestCase):
                             msg_prefix='Поста нет на его собственной странице')
 
     def test_edit_post(self):
-        self.new_post
         response = self.client.post((reverse('post_edit', kwargs={
             'username': self.user.username,
             'post_id': 1
@@ -63,7 +60,6 @@ class TestHomeWork05(TestCase):
 
     def test_edit_post_everywhere(self):
         self.client.force_login(self.user)
-        self.new_post
         self.client.post((reverse('post_edit', kwargs={
             'username': self.user.username,
             'post_id': 1

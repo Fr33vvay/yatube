@@ -1,5 +1,4 @@
 from django.contrib import admin
-from django.contrib.flatpages import views
 from django.urls import include, path
 
 urlpatterns = [
