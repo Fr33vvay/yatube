@@ -17,6 +17,10 @@
                     {% endfor %}
                 {% endif %}
 
+            {%  block function %}
+                <form method="post" action="{% url 'new_post' %}">
+            {% endblock %}
+
                 {% csrf_token %}
 
                 {% for field in form %}
@@ -25,7 +29,7 @@
                             <div class="col-md-6">
 
                                 {# подключаем фильтр и указываем класс #}
-                                {{ field|addclass:"form-control" }}
+                                {{ field|addclass:"form-control"}}
 
                                 {% if field.help_text %}
                                 <small id="{{ field.id_for_label }}-help" class="form-text text-muted">{{ field.help_text|safe }}</small>

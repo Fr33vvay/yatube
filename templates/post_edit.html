@@ -1,3 +1,7 @@
 {% extends "new_post.html" %}
 {% block card_header %}Редактировать запись{% endblock %}
+{% block function %}
+    <form method="post" action="{% url 'post_edit' username post.id %}">
+{% endblock %}
+
 {% block button %}Сохранить{% endblock %}

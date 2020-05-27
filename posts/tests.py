@@ -43,7 +43,7 @@ class TestHomeWork04(TestCase):
         self.assertContains(resp_profile, self.post_text,
                             msg_prefix='Поста нет на странице пользователя')
 
-        resp_post = self.client.get(reverse('post', kwargs={
+        resp_post = self.client.get(reverse('post_view', kwargs={
             'username': self.user.username,
             'post_id': 1
         }))
@@ -76,7 +76,7 @@ class TestHomeWork04(TestCase):
                             msg_prefix='Измененного поста нет на '
                                        'странице пользователя')
 
-        resp_post = self.client.get(reverse('post', kwargs={
+        resp_post = self.client.get(reverse('post_view', kwargs={
             'username': self.user.username,
             'post_id': 1
         }))

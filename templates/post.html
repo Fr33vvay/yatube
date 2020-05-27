@@ -48,7 +48,7 @@
                                             <div class="btn-group ">
                                                     <!-- Ссылка на редактирование, показывается только автору записи -->
                                                     {% if user == post.author %}
-                                                        <a class="btn btn-sm text-muted" href="/{{ author.username }}/{{ post.id }}/edit" role="button">Редактировать</a>
+                                                        <a class="btn btn-sm text-muted" href="{% url 'post_edit' author.username post.id %}" role="button">Редактировать</a>
                                                     {% endif %}
                                             </div>
                                             <!-- Дата публикации  -->

@@ -57,16 +57,19 @@ def post_view(request, username, post_id):
     return render(request, 'post.html', {'author': author,
                                          'post': post})
 
-
+@login_required
 def post_edit(request, username, post_id):
-    post = get_object_or_404(Post, id=post_id)
+    author = get_object_or_404(User, username=username)
+    post = get_object_or_404(author.posts, id=post_id)
     if post.author == request.user:
         if request.method == 'POST':
             form = PostForm(request.POST, instance=post)
             if form.is_valid():
                 form.save()
-                return redirect('post', username, post_id)
+                return redirect('post_view', username, post_id)
         form = PostForm(instance=post)
-        return render(request, 'post_edit.html', {'form': form})
+        return render(request, 'post_edit.html', {'form': form,
+                                                  'post': post,
+                                                  'username': username})
     else:
-        return redirect('post', username, post_id)
+        return redirect('post_view', username, post_id)
