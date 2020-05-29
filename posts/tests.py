@@ -131,3 +131,22 @@ class TestPathErrors(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 404,
                          msg='Не вызывается ошибка 404')
+
+class TestDisplayImg(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username='bum',
+                                             password='password')
+        self.client.force_login(self.user)
+        self.post_text = 'New text'
+
+    def test_post_page_has_img(self):
+        with open('media/posts/test.jpg', 'rb') as img:
+            self.client.post(reverse('new_post'),
+                                        {'text': self.post_text, 'image': img},
+                             follow=True)
+            tag = '<img class="card-img"'
+            response = self.client.get(reverse('post_view', kwargs={
+                'username': self.user.username,
+                'post_id': 1
+            }))
+            self.assertContains(response, tag, msg_prefix='Нет тега')
