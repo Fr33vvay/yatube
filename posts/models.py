@@ -19,12 +19,11 @@ class Post(models.Model):
     text = models.TextField(verbose_name='Текст')
     pub_date = models.DateTimeField("date published", auto_now_add=True)
     author = models.ForeignKey(User, verbose_name='Автор',
-                               related_name='posts',
-                               on_delete=models.CASCADE)
+                               related_name='posts', on_delete=models.CASCADE)
     group = models.ForeignKey(Group, verbose_name='Сообщество',
-                              related_name='posts', blank=True,
-                              null=True,
+                              related_name='posts', blank=True, null=True,
                               on_delete=models.SET_NULL)
+    image = models.ImageField(upload_to='posts/', blank=True, null=True)
 
     def __str__(self):
         return f'{self.author}: {self.text[:15]}'

@@ -30,7 +30,7 @@ def group_posts(request, slug):
 @login_required
 def new_post(request):
     if request.method == 'POST':
-        form = PostForm(request.POST)
+        form = PostForm(request.POST or None, files=request.FILES or None)
         if form.is_valid():
             post = form.save(commit=False)
             post.author = request.user
@@ -62,15 +62,25 @@ def post_view(request, username, post_id):
 def post_edit(request, username, post_id):
     author = get_object_or_404(User, username=username)
     post = get_object_or_404(author.posts, id=post_id)
-    if post.author == request.user:
+    if author == request.user:
+        form = PostForm(request.POST or None, files=request.FILES or None,
+                        instance=post)
         if request.method == 'POST':
-            form = PostForm(request.POST, instance=post)
             if form.is_valid():
                 form.save()
                 return redirect('post_view', username, post_id)
-        form = PostForm(instance=post)
+
         return render(request, 'post_edit.html', {'form': form,
                                                   'post': post,
                                                   'username': username})
     else:
         return redirect('post_view', username, post_id)
+
+
+def page_not_found(request, exception):
+    return render(request, 'misc/404.html', {"path": request.path},
+                  status=404)
+
+
+def server_error(request):
+    return render(request, 'misc/500.html', status=500)

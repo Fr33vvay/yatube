@@ -123,3 +123,11 @@ class TestPostEdit(TestCase):
         self.assertTrue(refresh_post, msg='Пост не редактируется')
         self.assertEqual(refresh_post.count(), 1, msg='Больше одного поста')
         self.assertFalse(edited_post, msg='Редактируемый пост не изменился')
+
+
+class TestPathErrors(TestCase):
+    def test_404_error(self):
+        url = '127.0.0.1:8000/e21n213kno21on21'
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 404,
+                         msg='Не вызывается ошибка 404')

@@ -18,7 +18,7 @@
                 {% endif %}
 
             {%  block function %}
-                <form method="post" action="{% url 'new_post' %}">
+                <form method="post" enctype="multipart/form-data" action="{% url 'new_post' %}">
             {% endblock %}
 
                 {% csrf_token %}
