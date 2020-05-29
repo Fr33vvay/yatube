@@ -45,6 +45,10 @@
                                     <p class="card-text">
                                             <!-- Ссылка на страницу автора в атрибуте href; username автора в тексте ссылки -->
                                             <a href="{% url 'profile' post.author.username %}"><strong class="d-block text-gray-dark">{{ post.author.username }}</strong></a>
+                                            <!-- Ссылка на группу -->
+                                            {% if post.group %}
+                                                <a href="{% url 'group_posts' post.group.slug %}"><strong class="d-block text-gray-dark">Сообщество {{ post.group.title }}</strong></a>
+                                            {% endif %}
                                             <!-- Текст поста -->
                                             {{ post.text }}
                                     </p>
