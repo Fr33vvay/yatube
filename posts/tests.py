@@ -184,7 +184,7 @@ class TestNotImage(TestCase):
         self.post_text = 'New text'
 
     def test_fake_image(self):
-        with open('media/posts/dronov.pdf', 'rb') as img:
+        with open('media/posts/ololo.docx', 'rb') as img:
             response = self.client.post(reverse('new_post'), {'text': '',
                                                    'image': img}, follow=True)
             self.assertIn('image', response.context['form'].errors, msg='PDF загружается')
