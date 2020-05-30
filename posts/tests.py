@@ -188,4 +188,3 @@ class TestNotImage(TestCase):
             response = self.client.post(reverse('new_post'), {'text': '',
                                                    'image': img}, follow=True)
             self.assertIn('image', response.context['form'].errors, msg='PDF загружается')
-
