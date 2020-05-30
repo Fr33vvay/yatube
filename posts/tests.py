@@ -1,7 +1,9 @@
+from django.shortcuts import get_object_or_404
 from django.test import TestCase
 from django.urls import reverse
 
-from .models import Post, User
+from .forms import PostForm
+from .models import Group, Post, User
 
 
 class TestPostCreation(TestCase):
@@ -132,6 +134,7 @@ class TestPathErrors(TestCase):
         self.assertEqual(response.status_code, 404,
                          msg='Не вызывается ошибка 404')
 
+
 class TestDisplayImg(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(username='bum',
@@ -139,7 +142,7 @@ class TestDisplayImg(TestCase):
         self.client.force_login(self.user)
         self.post_text = 'New text'
 
-    def test_post_page_has_img(self):
+    def test_pages_have_images(self):
         with open('media/posts/test.jpg', 'rb') as img:
             self.client.post(reverse('new_post'),
                                         {'text': self.post_text, 'image': img},
@@ -149,4 +152,40 @@ class TestDisplayImg(TestCase):
                 'username': self.user.username,
                 'post_id': 1
             }))
-            self.assertContains(response, tag, msg_prefix='Нет тега')
+            self.assertContains(response, tag, msg_prefix='Нет картинки '
+                                                          'на странице поста')
+
+            response = self.client.get(reverse('index'))
+            self.assertContains(response, tag, msg_prefix='Нет картинки на '
+                                                          'главной странице')
+
+            response = self.client.get(reverse('profile', kwargs={
+                'username': self.user.username
+            }))
+            self.assertContains(response, tag, msg_prefix='Нет картинки на '
+                                                          'странице автора')
+    def test_group_page_has_image(self):
+        self.group = Group.objects.create(title='testgroup', slug='testgroup')
+        with open('media/posts/test.jpg', 'rb') as img:
+            self.client.post(reverse('new_post'), {'text': 'new text',
+                                                   'group': self.group.pk,
+                                                   'image': img})
+        tag = '<img class="card-img"'
+        response = self.client.get(reverse('group_posts', args=[self.group.slug]))
+        self.assertContains(response, tag, msg_prefix='Нет картинки на '
+                                                      'странице группы')
+
+
+class TestNotImage(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username='bum',
+                                             password='password')
+        self.client.login(username='bum', password='password')
+        self.post_text = 'New text'
+
+    def test_fake_image(self):
+        with open('media/posts/dronov.pdf', 'rb') as img:
+            response = self.client.post(reverse('new_post'), {'text': '',
+                                                   'image': img}, follow=True)
+            self.assertIn('image', response.context['form'].errors, msg='PDF загружается')
+
