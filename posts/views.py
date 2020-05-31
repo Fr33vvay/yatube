@@ -80,11 +80,10 @@ def post_edit(request, username, post_id):
         return redirect('post_view', username, post_id)
 
 
-@login_required
 def add_comment(request, username, post_id):
     author = get_object_or_404(User, username=username)
     post = get_object_or_404(author.posts, id=post_id)
-    form = CommentForm(request.POST)
+    form = CommentForm(request.POST or None)
     if request.method == 'POST':
         if form.is_valid():
             comment = form.save(commit=False)

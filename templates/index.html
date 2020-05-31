@@ -1,24 +1,21 @@
 {% extends "base.html" %}
-{% block title %}Последние обновления на сайте{% endblock %}
+{% block title %} Последние обновления {% endblock %}
+
 {% block content %}
-{% load thumbnail %}
+    <div class="container">
+           <h1> Последние обновления на сайте</h1>
+            <!-- Вывод ленты записей -->
+                {% load cache %}
+                {% cache 20 index_page %}
+                {% for post in page %}
+                    {% include "post_item.html" with post=post %}
+                {% endfor %}
+                {% endcache %}
+    </div>
 
-    {% for post in page %}
-        {% thumbnail post.image "960x339" crop="center" upscale=True as im %}
-                <img class="card-img" src="{{ im.url }}">
-        {% endthumbnail %}
-        <h3>
-            Автор: <a href="{% url 'profile' post.author.username %}">{{ post.author.get_full_name }}</a>, Дата публикации: {{ post.pub_date|date:"d M Y" }}
-            {% if post.group %}
-                <a href="{% url 'group_posts' post.group.slug %}">Сообщество {{ post.group.title }}</a>
-            {% endif %}
-        </h3>
-        <p>{{ post.text|linebreaksbr }}</p>
-        <hr>
-    {% endfor %}
-
-    {% if page.has_other_pages %}
-        {% include "paginator.html" with items=page paginator=paginator%}
-    {% endif %}
+        <!-- Вывод паджинатора -->
+        {% if page.has_other_pages %}
+            {% include "paginator.html" with items=page paginator=paginator%}
+        {% endif %}
 
 {% endblock %}

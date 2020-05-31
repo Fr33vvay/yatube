@@ -66,31 +66,33 @@ class TestDisplayPost(TestCase):
                             msg_prefix='Поста нет на его собственной странице')
 
     def test_edit_post_everywhere(self):
-        self.client.post((reverse('post_edit', kwargs={
-            'username': self.new_post.author.username,
-            'post_id': self.new_post.pk
-        })),
-                         {'text': self.edited_post_text}, follow=True)
+        string = 'django.core.cache.backends.dummy.DummyCache'
+        with self.settings(CACHES={'default': {'BACKEND': string}}):
+            self.client.post((reverse('post_edit', kwargs={
+                'username': self.new_post.author.username,
+                'post_id': self.new_post.pk
+            })),
+                             {'text': self.edited_post_text}, follow=True)
 
-        resp_index = self.client.get(reverse('index'))
-        self.assertContains(resp_index, self.edited_post_text,
-                            msg_prefix='Измененного поста нет на '
-                                       'главной странице')
+            resp_index = self.client.get(reverse('index'))
+            self.assertContains(resp_index, self.edited_post_text,
+                                msg_prefix='Измененного поста нет на '
+                                           'главной странице')
 
-        resp_profile = self.client.get(reverse('profile', kwargs={
-            'username': self.new_post.author.username
-        }))
-        self.assertContains(resp_profile, self.edited_post_text,
-                            msg_prefix='Измененного поста нет на '
-                                       'странице пользователя')
+            resp_profile = self.client.get(reverse('profile', kwargs={
+                'username': self.new_post.author.username
+            }))
+            self.assertContains(resp_profile, self.edited_post_text,
+                                msg_prefix='Измененного поста нет на '
+                                           'странице пользователя')
 
-        resp_post = self.client.get(reverse('post_view', kwargs={
-            'username': self.new_post.author.username,
-            'post_id': self.new_post.pk
-        }))
-        self.assertContains(resp_post, self.edited_post_text,
-                            msg_prefix='Измененного поста нет на '
-                                       'его собственной странице')
+            resp_post = self.client.get(reverse('post_view', kwargs={
+                'username': self.new_post.author.username,
+                'post_id': self.new_post.pk
+            }))
+            self.assertContains(resp_post, self.edited_post_text,
+                                msg_prefix='Измененного поста нет на '
+                                           'его собственной странице')
 
 
 class TestPostEdit(TestCase):
