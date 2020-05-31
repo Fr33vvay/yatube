@@ -50,7 +50,7 @@
                                                 <a href="{% url 'group_posts' post.group.slug %}"><strong class="d-block text-gray-dark">Сообщество {{ post.group.title }}</strong></a>
                                             {% endif %}
                                             <!-- Текст поста -->
-                                            {{ post.text }}
+                                            {{ post.text|linebreaksbr }}
                                     </p>
                                     <div class="d-flex justify-content-between align-items-center">
                                             <div class="btn-group ">

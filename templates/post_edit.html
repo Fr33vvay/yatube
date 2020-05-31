@@ -1,7 +1,7 @@
 {% extends "new_post.html" %}
 {% block card_header %}Редактировать запись{% endblock %}
 {% block function %}
-    <form method="post" enctype="multipart/form-data" action="{% url 'post_edit' username post.id %}">
+    <form method="post" enctype="multipart/form-data" action="{% url 'post_edit' post.author post.id %}">
 {% endblock %}
 
 {% block button %}Сохранить{% endblock %}

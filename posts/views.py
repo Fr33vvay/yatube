@@ -47,7 +47,7 @@ def profile(request, username):
     post_list = author.posts.order_by('-pub_date')
     paginator = Paginator(post_list, 10)
     page_number = request.GET.get('page')
-    page = paginator.get_page(page_number)  # TODO: paginator's style
+    page = paginator.get_page(page_number)
     return render(request, 'profile.html', {'author': author,
                                             'page': page,
                                             'paginator': paginator})
@@ -75,8 +75,7 @@ def post_edit(request, username, post_id):
                 return redirect('post_view', username, post_id)
 
         return render(request, 'post_edit.html', {'form': form,
-                                                  'post': post,
-                                                  'username': username})
+                                                  'post': post})
     else:
         return redirect('post_view', username, post_id)
 
