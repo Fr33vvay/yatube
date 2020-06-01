@@ -1,6 +1,6 @@
 from django.test import TestCase
 from django.urls import reverse
-
+import time
 from .models import Group, Post, User
 
 
@@ -146,27 +146,32 @@ class TestDisplayImg(TestCase):
         self.post_text = 'New text'
 
     def test_pages_have_images(self):
-        with open('media/posts/test.jpg', 'rb') as img:
-            self.client.post(reverse('new_post'),
-                             {'text': self.post_text, 'image': img},
-                             follow=True)
-            tag = '<img class="card-img"'
-            response = self.client.get(reverse('post_view', kwargs={
-                'username': self.user.username,
-                'post_id': 1
-            }))
-            self.assertContains(response, tag, msg_prefix='Нет картинки '
-                                                          'на странице поста')
+        # string = 'django.core.cache.backends.dummy.DummyCache'
+        # with self.settings(CACHES={'default': {'BACKEND': string}}):
+            with open('media/posts/test.jpg', 'rb') as img:
+                self.client.post(reverse('new_post'),
+                                 {'text': self.post_text, 'image': img},
+                                 follow=True)
+                tag = '<img class="card-img"'
+                response = self.client.get(reverse('post_view', kwargs={
+                    'username': self.user.username,
+                    'post_id': 1
+                }))
+                self.assertContains(response, tag,
+                                    msg_prefix='Нет картинки '
+                                               'на странице поста')
 
-            response = self.client.get(reverse('index'))
-            self.assertContains(response, tag, msg_prefix='Нет картинки на '
-                                                          'главной странице')
+                response = self.client.get(reverse('index'))
+                self.assertContains(response, tag,
+                                    msg_prefix='Нет картинки на '
+                                               'главной странице')
 
-            response = self.client.get(reverse('profile', kwargs={
-                'username': self.user.username
-            }))
-            self.assertContains(response, tag, msg_prefix='Нет картинки на '
-                                                          'странице автора')
+                response = self.client.get(reverse('profile', kwargs={
+                    'username': self.user.username
+                }))
+                self.assertContains(response, tag,
+                                    msg_prefix='Нет картинки на '
+                                               'странице автора')
 
     def test_group_page_has_image(self):
         self.group = Group.objects.create(title='testgroup', slug='testgroup')
@@ -185,13 +190,29 @@ class TestNotImage(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(username='bum',
                                              password='password')
-        self.client.login(username='bum', password='password')
-        self.post_text = 'New text'
+        self.client.force_login(self.user)
 
     def test_fake_image(self):
         with open('media/posts/ololo.docx', 'rb') as img:
-            response = self.client.post(reverse('new_post'), {'text': '',
-                                                              'image': img},
+            response = self.client.post(reverse('new_post'),
+                                        {'text': 'New text', 'image': img},
                                         follow=True)
             self.assertIn('image', response.context['form'].errors,
                           msg='PDF загружается')
+
+
+class TestVau(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username='bum',
+                                             password='password')
+        self.client.force_login(self.user)
+
+    def test_cache(self):
+        response = self.client.post(reverse('new_post'),
+                                    {'text': 'Some text'}, follow=True)
+        self.assertNotContains(response, 'Some text', msg_prefix='???')
+        time.sleep(20)
+        response = self.client.post(reverse('new_post'),
+                                    {'text': 'Some text'}, follow=True)
+        self.assertContains(response, 'Some text', msg_prefix='???')
+

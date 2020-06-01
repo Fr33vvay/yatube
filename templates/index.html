@@ -5,12 +5,12 @@
     <div class="container">
            <h1> Последние обновления на сайте</h1>
             <!-- Вывод ленты записей -->
-                {% load cache %}
-                {% cache 20 index_page %}
+            {% load cache %}
+            {% cache 20 index_page page.number %}
                 {% for post in page %}
                     {% include "post_item.html" with post=post %}
                 {% endfor %}
-                {% endcache %}
+            {% endcache %}
     </div>
 
         <!-- Вывод паджинатора -->
