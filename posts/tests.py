@@ -2,6 +2,12 @@ from django.test import TestCase
 from django.urls import reverse
 import time
 from .models import Group, Post, User
+from django.test import override_settings
+
+
+DUMMY_CACHE = {
+    'default': {'BACKEND': 'django.core.cache.backends.dummy.DummyCache'}
+}
 
 
 class TestPostCreation(TestCase):
@@ -65,34 +71,33 @@ class TestDisplayPost(TestCase):
         self.assertContains(resp_post, self.new_post.text,
                             msg_prefix='Поста нет на его собственной странице')
 
+    @override_settings(CACHES=DUMMY_CACHE)
     def test_edit_post_everywhere(self):
-        string = 'django.core.cache.backends.dummy.DummyCache'
-        with self.settings(CACHES={'default': {'BACKEND': string}}):
-            self.client.post((reverse('post_edit', kwargs={
-                'username': self.new_post.author.username,
-                'post_id': self.new_post.pk
-            })),
-                             {'text': self.edited_post_text}, follow=True)
+        self.client.post((reverse('post_edit', kwargs={
+            'username': self.new_post.author.username,
+            'post_id': self.new_post.pk
+        })),
+                         {'text': self.edited_post_text}, follow=True)
 
-            resp_index = self.client.get(reverse('index'))
-            self.assertContains(resp_index, self.edited_post_text,
-                                msg_prefix='Измененного поста нет на '
-                                           'главной странице')
+        resp_index = self.client.get(reverse('index'))
+        self.assertContains(resp_index, self.edited_post_text,
+                            msg_prefix='Измененного поста нет на '
+                                       'главной странице')
 
-            resp_profile = self.client.get(reverse('profile', kwargs={
-                'username': self.new_post.author.username
-            }))
-            self.assertContains(resp_profile, self.edited_post_text,
-                                msg_prefix='Измененного поста нет на '
-                                           'странице пользователя')
+        resp_profile = self.client.get(reverse('profile', kwargs={
+            'username': self.new_post.author.username
+        }))
+        self.assertContains(resp_profile, self.edited_post_text,
+                            msg_prefix='Измененного поста нет на '
+                                       'странице пользователя')
 
-            resp_post = self.client.get(reverse('post_view', kwargs={
-                'username': self.new_post.author.username,
-                'post_id': self.new_post.pk
-            }))
-            self.assertContains(resp_post, self.edited_post_text,
-                                msg_prefix='Измененного поста нет на '
-                                           'его собственной странице')
+        resp_post = self.client.get(reverse('post_view', kwargs={
+            'username': self.new_post.author.username,
+            'post_id': self.new_post.pk
+        }))
+        self.assertContains(resp_post, self.edited_post_text,
+                            msg_prefix='Измененного поста нет на '
+                                       'его собственной странице')
 
 
 class TestPostEdit(TestCase):
@@ -146,32 +151,30 @@ class TestDisplayImg(TestCase):
         self.post_text = 'New text'
 
     def test_pages_have_images(self):
-        # string = 'django.core.cache.backends.dummy.DummyCache'
-        # with self.settings(CACHES={'default': {'BACKEND': string}}):
-            with open('media/posts/test.jpg', 'rb') as img:
-                self.client.post(reverse('new_post'),
-                                 {'text': self.post_text, 'image': img},
-                                 follow=True)
-                tag = '<img class="card-img"'
-                response = self.client.get(reverse('post_view', kwargs={
-                    'username': self.user.username,
-                    'post_id': 1
-                }))
-                self.assertContains(response, tag,
-                                    msg_prefix='Нет картинки '
-                                               'на странице поста')
+        with open('media/posts/test.jpg', 'rb') as img:
+            self.client.post(reverse('new_post'),
+                             {'text': self.post_text, 'image': img},
+                             follow=True)
+            tag = '<img class="card-img"'
+            response = self.client.get(reverse('post_view', kwargs={
+                'username': self.user.username,
+                'post_id': 1
+            }))
+            self.assertContains(response, tag,
+                                msg_prefix='Нет картинки '
+                                           'на странице поста')
 
-                response = self.client.get(reverse('index'))
-                self.assertContains(response, tag,
-                                    msg_prefix='Нет картинки на '
-                                               'главной странице')
+            response = self.client.get(reverse('index'))
+            self.assertContains(response, tag,
+                                msg_prefix='Нет картинки на '
+                                           'главной странице')
 
-                response = self.client.get(reverse('profile', kwargs={
-                    'username': self.user.username
-                }))
-                self.assertContains(response, tag,
-                                    msg_prefix='Нет картинки на '
-                                               'странице автора')
+            response = self.client.get(reverse('profile', kwargs={
+                'username': self.user.username
+            }))
+            self.assertContains(response, tag,
+                                msg_prefix='Нет картинки на '
+                                           'странице автора')
 
     def test_group_page_has_image(self):
         self.group = Group.objects.create(title='testgroup', slug='testgroup')
@@ -208,11 +211,13 @@ class TestVau(TestCase):
         self.client.force_login(self.user)
 
     def test_cache(self):
-        response = self.client.post(reverse('new_post'),
+        self.client.post(reverse('new_post'),
                                     {'text': 'Some text'}, follow=True)
-        self.assertNotContains(response, 'Some text', msg_prefix='???')
+        response = self.client.get(reverse('index'))
+        self.assertNotContains(response, 'Some text',
+                               msg_prefix='Пост появился слишком рано')
         time.sleep(20)
-        response = self.client.post(reverse('new_post'),
-                                    {'text': 'Some text'}, follow=True)
-        self.assertContains(response, 'Some text', msg_prefix='???')
+        response = self.client.get(reverse('index'))
+        self.assertContains(response, 'Some text',
+                            msg_prefix='Пост не появился')
 
