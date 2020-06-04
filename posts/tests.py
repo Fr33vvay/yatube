@@ -1,9 +1,11 @@
+from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
 import time
-from .models import Group, Post, User
+from .models import Group, Post
 from django.test import override_settings
 
+User = get_user_model()
 
 DUMMY_CACHE = {
     'default': {'BACKEND': 'django.core.cache.backends.dummy.DummyCache'}
@@ -204,7 +206,7 @@ class TestNotImage(TestCase):
                           msg='PDF загружается')
 
 
-class TestVau(TestCase):
+class TestLagCache(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(username='bum',
                                              password='password')

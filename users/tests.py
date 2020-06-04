@@ -1,7 +1,10 @@
+from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
+from yatube.posts.models import Follow
 
-from posts.models import User
+
+User = get_user_model()
 
 
 class TestRegistration(TestCase):
@@ -43,3 +46,14 @@ class TestRegistration(TestCase):
             'username': self.data['username']}))
         self.assertEqual(response.status_code, 200,
                          msg='Профиль пользователя не создается')
+
+
+# class TestFallow(TestCase):
+#     def setUp(self):
+#         self.user = User.objects.create_user(username='bum',
+#                                              password='password')
+#         self.client.force_login(self.user)
+#
+#     def test_follow(self):
+#         self.assertEqual(Follow.user)
+
