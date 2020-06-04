@@ -1,9 +1,10 @@
-from django.contrib.auth import get_user_model
-from django.test import TestCase
-from django.urls import reverse
 import time
+
+from django.contrib.auth import get_user_model
+from django.test import TestCase, override_settings
+from django.urls import reverse
+
 from .models import Group, Post
-from django.test import override_settings
 
 User = get_user_model()
 
@@ -259,3 +260,48 @@ class TestFollowersSeeNewPost(TestCase):
         self.assertNotContains(response, self.post_text,
                                msg_prefix='Пост появился у '
                                           'неподписанного пользователя')
+
+
+class TestComments(TestCase):
+    def setUp(self):
+        self.author = User.objects.create_user(username='author',
+                                               password='password')
+        self.post_text = 'My text'
+        self.comment = 'Best comment'
+        self.new_post = Post.objects.create(text=self.post_text,
+                                            author=self.author)
+        self.user = User.objects.create_user(username='bum',
+                                             password='password')
+
+    def test_authenticated_user_comments(self):
+        self.client.force_login(self.user)
+        response = self.client.post((reverse('add_comment', kwargs={
+            'username': self.author.username,
+            'post_id': self.new_post.pk
+        })),
+                                    {'text': self.comment},
+                                    follow=True)
+        self.assertEqual(response.status_code, 200, msg='not 200')
+
+        response = self.client.get(reverse('post_view', kwargs={
+            'username': self.author.username,
+            'post_id': self.new_post.pk
+        }))
+        self.assertContains(response, self.comment,
+                            msg_prefix='Нет комментария')
+
+    def test_noname_comments(self):
+        response = self.client.get((reverse('add_comment', kwargs={
+            'username': self.author.username,
+            'post_id': self.new_post.pk
+        })),
+                                   follow=True)
+        self.assertRedirects(response,
+                             f'/auth/login/?next=/{self.author.username}/'
+                             f'{self.new_post.pk}/comment/',
+                             status_code=302, target_status_code=200,
+                             msg_prefix='Неавторизованный пользователь'
+                                        'может комментировать пост')
+
+        comment = self.author.comment
+        self.assertEqual(comment.count(), 0, msg='Комментарий есть')

@@ -2,7 +2,6 @@ from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
 
-
 User = get_user_model()
 
 
@@ -45,6 +44,7 @@ class TestRegistration(TestCase):
             'username': self.data['username']}))
         self.assertEqual(response.status_code, 200,
                          msg='Профиль пользователя не создается')
+
 
 class TestFollow(TestCase):
     def setUp(self):
