@@ -214,7 +214,7 @@ class TestLagCache(TestCase):
 
     def test_cache(self):
         self.client.post(reverse('new_post'),
-                                    {'text': 'Some text'}, follow=True)
+                         {'text': 'Some text'}, follow=True)
         response = self.client.get(reverse('index'))
         self.assertNotContains(response, 'Some text',
                                msg_prefix='Пост появился слишком рано')
@@ -223,3 +223,39 @@ class TestLagCache(TestCase):
         self.assertContains(response, 'Some text',
                             msg_prefix='Пост не появился')
 
+
+class TestFollowersSeeNewPost(TestCase):
+    def setUp(self):
+        self.author = User.objects.create_user(username='author',
+                                               password='password')
+        self.post_text = 'For my followers'
+
+        self.user_fol = User.objects.create_user(username='follower',
+                                                 password='password')
+        self.client.force_login(self.user_fol)
+        self.client.post(reverse('profile_follow', kwargs={
+            'username': self.author.username}))
+
+        self.user_not_fol = User.objects.create_user(username='just_user',
+                                                     password='password')
+
+    def test_followers_see(self):
+        self.client.force_login(self.author)
+        self.client.post(reverse('new_post'),
+                         {'text': self.post_text}, follow=True)
+
+        self.client.force_login(self.user_fol)
+        response = self.client.get(reverse('follow_index'))
+        self.assertContains(response, self.post_text,
+                            msg_prefix='Пост не появился у подписчика')
+
+    def test_not_followers_dont_see(self):
+        self.client.force_login(self.author)
+        self.client.post(reverse('new_post'),
+                         {'text': self.post_text}, follow=True)
+
+        self.client.force_login(self.user_not_fol)
+        response = self.client.get(reverse('follow_index'))
+        self.assertNotContains(response, self.post_text,
+                               msg_prefix='Пост появился у '
+                                          'неподписанного пользователя')

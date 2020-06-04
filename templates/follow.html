@@ -1,10 +1,10 @@
-{% extends "index.html" %}
+{% extends "base.html" %}
 {% block title %} Избранные авторы {% endblock %}
 
 {% block content %}
     <div class="container">
 
-        {% include "menu.html" with index=True %}
+        {% include "menu.html" with follow=True %}
 
            <h1>Избранные авторы</h1>
             <!-- Вывод ленты записей -->
