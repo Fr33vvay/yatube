@@ -7,7 +7,7 @@ from .models import Group, Post, User
 
 
 def index(request):
-    post_list = Post.objects.order_by('-pub_date').all()
+    post_list = Post.objects.all()
     paginator = Paginator(post_list, 10)
 
     page_number = request.GET.get('page')
@@ -47,7 +47,7 @@ def profile(request, username):
     user = request.user
     follow = False
     if user.is_authenticated:
-        follow = user.follower.filter(author=author).count
+        follow = user.follower.filter(author=author).exists()
     post_list = author.posts.order_by('-pub_date')
     paginator = Paginator(post_list, 10)
     page_number = request.GET.get('page')
@@ -55,18 +55,19 @@ def profile(request, username):
     return render(request, 'profile.html', {'author': author,
                                             'page': page,
                                             'paginator': paginator,
-                                            'follow': follow})
+                                            'follow': follow,
+                                            'user': user})
 
 
 def post_view(request, username, post_id):
     author = get_object_or_404(User, username=username)
     post = get_object_or_404(author.posts, id=post_id)
     form = CommentForm()
-    items = post.comment.order_by("created")
+    comments = post.comments.order_by("created")
     return render(request, 'post.html', {'author': author,
                                          'post': post,
                                          'form': form,
-                                         'items': items})
+                                         'comments': comments})
 
 
 @login_required
@@ -113,7 +114,7 @@ def server_error(request):
 def follow_index(request):
     user = request.user
     authors = user.follower.all().values('author')
-    post_list = Post.objects.filter(author__in=authors).order_by('-pub_date')
+    post_list = Post.objects.filter(author__in=authors)
     paginator = Paginator(post_list, 10)
     page_number = request.GET.get('page')
     page = paginator.get_page(page_number)
@@ -125,8 +126,10 @@ def follow_index(request):
 def profile_follow(request, username):
     user = request.user
     author = get_object_or_404(User, username=username)
-    follow = user.follower.create(author=author)
-    follow.save()
+    follow_exsists = user.follower.filter(author=author).exists()
+    if user != author and follow_exsists is False:
+        follow = user.follower.create(author=author)
+        follow.save()
     return redirect('follow_index')
 
 
