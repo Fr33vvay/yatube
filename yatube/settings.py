@@ -16,8 +16,8 @@ ALLOWED_HOSTS = [
 INSTALLED_APPS = [
     'users',
     'posts',
-    "django.contrib.sites",
-    "django.contrib.flatpages",
+    'django.contrib.sites',
+    'django.contrib.flatpages',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -25,6 +25,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'sorl.thumbnail',
+    'debug_toolbar',
 ]
 
 MIDDLEWARE = [
@@ -35,6 +36,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    # 'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
 
 ROOT_URLCONF = 'yatube.urls'
@@ -118,12 +120,16 @@ MANAGERS = [
     '7634216@gmail.com',
 ]
 
-EMAIL_BACKEND = "django.core.mail.backends.filebased.EmailBackend"
-EMAIL_FILE_PATH = os.path.join(BASE_DIR, "sent_emails")
-SITE_ID = 1
+EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+EMAIL_FILE_PATH = os.path.join(BASE_DIR, 'sent_emails')
+SITE_ID = 2
 
 CACHES = {
         'default': {
                 'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
         }
 }
+
+INTERNAL_IPS = [
+    '127.0.0.1',
+]
